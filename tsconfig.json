@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "noImplicitAny": true,
+    "module": "umd",
+    "moduleResolution": "node",
+    "experimentalDecorators": true
+  }
+}
