@@ -1,0 +1,36 @@
+{
+  "name": "graph-serializer",
+  "version": "0.0.1",
+  "description": "Typescript serializer for converting betweet JSON data and Object graphs",
+  "main": "gulpfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
+  },
+  "keywords": [
+    "serializer",
+    "typescript",
+    "object",
+    "graph",
+    "decorators"
+  ],
+  "author": "Syslogic",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^5.0.0",
+    "chai": "^4.1.2",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-typescript": "^4.0.2",
+    "gulp-uglify": "^3.0.0",
+    "mocha": "^5.0.5",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.8.1",
+    "typescript-map": "0.0.5"
+  }
+}
