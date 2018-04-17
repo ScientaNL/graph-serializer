@@ -7,6 +7,10 @@ declare module "Scheme" {
 declare module "Store" {
     import { TSMap } from "typescript-map";
     import { Scheme } from "Scheme";
+    export interface PropertyDescriptionSettings {
+        scheme?: Scheme;
+        serializedName?: string;
+    }
     /**
      * Property decorator storage class
      */
@@ -14,9 +18,7 @@ declare module "Store" {
         scheme: Scheme;
         name: string;
         serializedName: string;
-        constructor(propertyName: string, settings?: {
-            [key: string]: any;
-        });
+        constructor(propertyName: string, settings?: PropertyDescriptionSettings);
         /**
          * Add new property decorator settings here.
          *
@@ -27,15 +29,16 @@ declare module "Store" {
             [key: string]: any;
         }): PropertyDescription;
     }
+    export interface ClassDescriptionSettings {
+        postDeserialize?: Function;
+    }
     /**
      * Class decorator storage
      */
     export class ClassDescription {
         postDeserialize: Function;
         properties: TSMap<string, PropertyDescription>;
-        setDecoration(settings: {
-            [key: string]: any;
-        }): ClassDescription;
+        setDecoration(settings: ClassDescriptionSettings): ClassDescription;
     }
     /**
      * Main decorator storage. This class will store and provide access to all decorators.
@@ -174,7 +177,7 @@ declare module "Types" {
 }
 declare module "graph-serializer" {
     export { Scheme } from "Scheme";
-    export { ClassDescription, PropertyDescription, Store } from "Store";
+    export { ClassDescription, ClassDescriptionSettings, PropertyDescription, PropertyDescriptionSettings, Store } from "Store";
     export { array, custom, date, object, primitive } from "Types";
     export { deserialize, serialize } from "Serializer";
     export { serializable } from "Decorators";

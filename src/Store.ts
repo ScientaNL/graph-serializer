@@ -1,16 +1,21 @@
 import {TSMap} from "typescript-map";
 import {Scheme} from "./Scheme";
 
+export interface PropertyDescriptionSettings {
+    scheme?: Scheme,
+    serializedName?: string
+}
+
 /**
  * Property decorator storage class
  */
 export class PropertyDescription {
 
-    public scheme:Scheme;
+    public scheme: Scheme;
     public name: string;
-    public serializedName:string;
+    public serializedName: string;
 
-    public constructor(propertyName: string, settings:{[key:string]:any} = {}) {
+    public constructor(propertyName: string, settings: PropertyDescriptionSettings = {}) {
         this.name = propertyName;
         this.setDecoration(settings);
     }
@@ -21,7 +26,7 @@ export class PropertyDescription {
      * @param {{[p: string]: any}} settings
      * @returns {PropertyDescription}
      */
-    public setDecoration(settings:{[key:string]:any}):PropertyDescription {
+    public setDecoration(settings: { [key: string]: any }): PropertyDescription {
         this.scheme = typeof settings.scheme === 'undefined'
             ? new Scheme()
             : settings.scheme;
@@ -32,19 +37,24 @@ export class PropertyDescription {
     }
 }
 
+export interface ClassDescriptionSettings {
+    postDeserialize?: Function
+}
+
 /**
  * Class decorator storage
  */
 export class ClassDescription {
 
-    public postDeserialize: Function = ()=>{};
-    public properties: TSMap<string,PropertyDescription> = new TSMap();
+    public postDeserialize: Function = () => {
+    };
+    public properties: TSMap<string, PropertyDescription> = new TSMap();
 
-    public setDecoration(settings:{[key:string]:any}):ClassDescription {
-        if(typeof settings === 'undefined')
+    public setDecoration(settings: ClassDescriptionSettings): ClassDescription {
+        if (typeof settings === 'undefined')
             return this;
         this.postDeserialize = typeof settings.postDeserialize === 'undefined'
-            ? ()=>{}
+            ? () => { }
             : settings.postDeserialize;
         return this;
     }
@@ -53,7 +63,7 @@ export class ClassDescription {
 /**
  * Main decorator storage. This class will store and provide access to all decorators.
  */
-export class Store extends TSMap<any,ClassDescription> {
+export class Store extends TSMap<any, ClassDescription> {
 
     /**
      * Override Map getter. When no class description is found, we want to instantiate and return one. Class decorators
@@ -62,8 +72,8 @@ export class Store extends TSMap<any,ClassDescription> {
      * @param key
      * @returns {ClassDescription}
      */
-    public get(key:any):ClassDescription {
-        if(!this.has(key)) this.set(key,new ClassDescription());
+    public get(key: any): ClassDescription {
+        if (!this.has(key)) this.set(key, new ClassDescription());
         return super.get(key);
     }
 
