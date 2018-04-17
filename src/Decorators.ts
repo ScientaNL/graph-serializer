@@ -1,4 +1,4 @@
-import {PropertyDescription, store} from "./Store";
+import {ClassDescriptionSettings, PropertyDescription, PropertyDescriptionSettings, store} from "./Store";
 
 /**
  * Serializable decorator. The decorator may receive an object with settings. Example usage:
@@ -20,18 +20,18 @@ import {PropertyDescription, store} from "./Store";
  * ```
  *
  */
-export function serializable(settings: object = {}): any {
+export function serializable(settings: ClassDescriptionSettings|PropertyDescriptionSettings = {}): any {
 
     return function(type:any, propertyName: string){
 
         // Class decorator
         if(arguments.length === 1) {
-            store.get(type).setDecoration(settings);
+            store.get(type).setDecoration(<ClassDescriptionSettings>settings);
         }
 
         // Property decorator
         else if(arguments.length === 3) {
-            store.get(type.constructor).properties.set(propertyName, new PropertyDescription(propertyName, settings));
+            store.get(type.constructor).properties.set(propertyName, new PropertyDescription(propertyName, <PropertyDescriptionSettings>settings));
         }
 
         else {
