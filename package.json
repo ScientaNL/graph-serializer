@@ -58,9 +58,6 @@
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register --require amd-loader ./test/**/*.ts"
   },
   "version": "0.0.1",
-  "dependencies": {
-    "typescript-map": "0.0.6"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:SyslogicNL/graph-serializer.git"

@@ -5,11 +5,11 @@ declare module "Scheme" {
     }
 }
 declare module "Store" {
-    import { TSMap } from "typescript-map";
     import { Scheme } from "Scheme";
-    export interface PropertyDescriptionSettings {
+    export interface DescriptionSettings {
         scheme?: Scheme;
         serializedName?: string;
+        postDeserialize?: Function;
     }
     /**
      * Property decorator storage class
@@ -18,32 +18,34 @@ declare module "Store" {
         scheme: Scheme;
         name: string;
         serializedName: string;
-        constructor(propertyName: string, settings?: PropertyDescriptionSettings);
+        constructor(propertyName: string, settings?: DescriptionSettings);
         /**
          * Add new property decorator settings here.
          *
-         * @param {{[p: string]: any}} settings
+         * @param {DescriptionSettings} settings
          * @returns {PropertyDescription}
          */
-        setDecoration(settings: {
-            [key: string]: any;
-        }): PropertyDescription;
-    }
-    export interface ClassDescriptionSettings {
-        postDeserialize?: Function;
+        setDecoration(settings: DescriptionSettings): PropertyDescription;
     }
     /**
      * Class decorator storage
      */
     export class ClassDescription {
         postDeserialize: Function;
-        properties: TSMap<string, PropertyDescription>;
-        setDecoration(settings: ClassDescriptionSettings): ClassDescription;
+        properties: Map<string, PropertyDescription>;
+        /**
+         * Add new class decorator settings here.
+         *
+         * @param {DescriptionSettings} settings
+         * @returns {ClassDescription}
+         */
+        setDecoration(settings: DescriptionSettings): ClassDescription;
     }
     /**
      * Main decorator storage. This class will store and provide access to all decorators.
      */
-    export class Store extends TSMap<any, ClassDescription> {
+    export class Store {
+        private map;
         /**
          * Override Map getter. When no class description is found, we want to instantiate and return one. Class decorators
          * are optional, and this ensures we will get a default one when requested
@@ -56,7 +58,7 @@ declare module "Store" {
     export let store: Store;
 }
 declare module "Decorators" {
-    import { ClassDescriptionSettings, PropertyDescriptionSettings } from "Store";
+    import { DescriptionSettings } from "Store";
     /**
      * Serializable decorator. The decorator may receive an object with settings. Example usage:
      *
@@ -77,7 +79,7 @@ declare module "Decorators" {
      * ```
      *
      */
-    export function serializable(settings?: ClassDescriptionSettings | PropertyDescriptionSettings): any;
+    export function serializable(settings?: DescriptionSettings): any;
 }
 declare module "Serializer" {
     /**
@@ -178,7 +180,7 @@ declare module "Types" {
 }
 declare module "graph-serializer" {
     export { Scheme } from "Scheme";
-    export { ClassDescription, ClassDescriptionSettings, PropertyDescription, PropertyDescriptionSettings, Store } from "Store";
+    export { ClassDescription, PropertyDescription, DescriptionSettings, Store } from "Store";
     export { array, custom, date, object, primitive } from "Types";
     export { deserialize, serialize } from "Serializer";
     export { serializable } from "Decorators";
