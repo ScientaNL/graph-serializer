@@ -2,8 +2,10 @@
   "compilerOptions": {
     "target": "es5",
     "noImplicitAny": true,
-    "module": "umd",
+    "module": "amd",
     "moduleResolution": "node",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+	  "outFile": "graph-serializer.js",
+	  "declaration": true
   }
 }
