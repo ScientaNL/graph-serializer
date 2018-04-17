@@ -1,25 +1,4 @@
 {
-  "_from": "github:SyslogicNL/graph-serializer",
-  "_id": "graph-serializer@0.0.1",
-  "_inBundle": false,
-  "_integrity": "sha1-xaTo2YbA650ClEvGqQnfe1fiaR0=",
-  "_location": "/graph-serializer",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "git",
-    "raw": "SyslogicNL/graph-serializer",
-    "rawSpec": "SyslogicNL/graph-serializer",
-    "saveSpec": "github:SyslogicNL/graph-serializer",
-    "fetchSpec": null,
-    "gitCommittish": "master"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "github:SyslogicNL/graph-serializer#98d62dc0a1cb1c8692794b8482c535cca9b0f2ce",
-  "_spec": "SyslogicNL/graph-serializer",
-  "_where": "/home/hvdberg/development/scienta/releases/current/resources/script",
   "author": {
     "name": "Syslogic"
   },
@@ -57,7 +36,7 @@
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register --require amd-loader ./test/**/*.ts"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "git@github.com:SyslogicNL/graph-serializer.git"
