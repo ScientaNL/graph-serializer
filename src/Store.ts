@@ -35,7 +35,7 @@ export class PropertyDescription {
 /**
  * Class decorator storage
  */
-class ClassDescription {
+export class ClassDescription {
 
     public postDeserialize: Function = ()=>{};
     public properties: TSMap<string,PropertyDescription> = new TSMap();
@@ -53,7 +53,7 @@ class ClassDescription {
 /**
  * Main decorator storage. This class will store and provide access to all decorators.
  */
-class Store extends TSMap<any,ClassDescription> {
+export class Store extends TSMap<any,ClassDescription> {
 
     /**
      * Override Map getter. When no class description is found, we want to instantiate and return one. Class decorators

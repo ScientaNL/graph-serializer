@@ -14,13 +14,17 @@ gulp.task('watch', function() {
 });
 
 gulp.task('build', function() {
-    return gulp.src("src/**/*.ts")
+    var t = gulp.src("src/**/*.ts")
         .pipe(sourcemaps.init())
-        .pipe(tsProject())
+        .pipe(tsProject());
+
+    t.js
         .pipe(concat("graph-serializer.js"))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest("dist"))
         .pipe(uglify())
         .pipe(rename({extname:".min.js"}))
         .pipe(gulp.dest('dist'));
+
+    t.dts.pipe(gulp.dest('dist'));
 });
