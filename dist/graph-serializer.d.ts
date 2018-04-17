@@ -56,6 +56,7 @@ declare module "Store" {
     export let store: Store;
 }
 declare module "Decorators" {
+    import { ClassDescriptionSettings, PropertyDescriptionSettings } from "Store";
     /**
      * Serializable decorator. The decorator may receive an object with settings. Example usage:
      *
@@ -76,7 +77,7 @@ declare module "Decorators" {
      * ```
      *
      */
-    export function serializable(settings?: object): any;
+    export function serializable(settings?: ClassDescriptionSettings | PropertyDescriptionSettings): any;
 }
 declare module "Serializer" {
     /**
