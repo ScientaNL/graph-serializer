@@ -14,10 +14,7 @@ export function deserialize(type: any, src: any): any {
     let isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
     if(isDerivedClass) {
         let extendedType = Object.getPrototypeOf(Object.getPrototypeOf(new type())).constructor;
-        let extendedProperties = deserialize(extendedType,src);
-        Object.keys(extendedProperties).forEach((key:string)=>{
-            ret[key] = extendedProperties[key];
-        });
+        Object.assign(ret,deserialize(extendedType,src));
     }
 
     store.get(type).properties.forEach((property: PropertyDescription, propertyName: string) => {
@@ -41,10 +38,7 @@ export function serialize(src: any): { [key: string]: any } {
     //parent
     if(Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
         let superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
-        let superClassProperties = serialize(superClass);
-        Object.keys(superClassProperties).forEach((key:string) =>{
-            ret[key] = superClassProperties[key];
-        });
+        Object.assign(ret,serialize(superClass));
     }
 
     store.get(src.constructor).properties.forEach((property:PropertyDescription,propertyName:string) => {
