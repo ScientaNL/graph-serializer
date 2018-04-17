@@ -5,7 +5,6 @@ declare module "Scheme" {
     }
 }
 declare module "Store" {
-    import { TSMap } from "typescript-map";
     import { Scheme } from "Scheme";
     export interface DescriptionSettings {
         scheme?: Scheme;
@@ -23,25 +22,30 @@ declare module "Store" {
         /**
          * Add new property decorator settings here.
          *
-         * @param {{[p: string]: any}} settings
+         * @param {DescriptionSettings} settings
          * @returns {PropertyDescription}
          */
-        setDecoration(settings: {
-            [key: string]: any;
-        }): PropertyDescription;
+        setDecoration(settings: DescriptionSettings): PropertyDescription;
     }
     /**
      * Class decorator storage
      */
     export class ClassDescription {
         postDeserialize: Function;
-        properties: TSMap<string, PropertyDescription>;
+        properties: Map<string, PropertyDescription>;
+        /**
+         * Add new class decorator settings here.
+         *
+         * @param {DescriptionSettings} settings
+         * @returns {ClassDescription}
+         */
         setDecoration(settings: DescriptionSettings): ClassDescription;
     }
     /**
      * Main decorator storage. This class will store and provide access to all decorators.
      */
-    export class Store extends TSMap<any, ClassDescription> {
+    export class Store {
+        private map;
         /**
          * Override Map getter. When no class description is found, we want to instantiate and return one. Class decorators
          * are optional, and this ensures we will get a default one when requested

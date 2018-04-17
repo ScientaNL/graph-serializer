@@ -1,4 +1,3 @@
-import {TSMap} from "typescript-map";
 import {Scheme} from "./Scheme";
 
 export interface DescriptionSettings {
@@ -24,10 +23,10 @@ export class PropertyDescription {
     /**
      * Add new property decorator settings here.
      *
-     * @param {{[p: string]: any}} settings
+     * @param {DescriptionSettings} settings
      * @returns {PropertyDescription}
      */
-    public setDecoration(settings: { [key: string]: any }): PropertyDescription {
+    public setDecoration(settings: DescriptionSettings): PropertyDescription {
         this.scheme = typeof settings.scheme === 'undefined'
             ? new Scheme()
             : settings.scheme;
@@ -43,10 +42,15 @@ export class PropertyDescription {
  */
 export class ClassDescription {
 
-    public postDeserialize: Function = () => {
-    };
-    public properties: TSMap<string, PropertyDescription> = new TSMap();
+    public postDeserialize: Function = () => {};
+    public properties: Map<string, PropertyDescription> = new Map();
 
+    /**
+     * Add new class decorator settings here.
+     *
+     * @param {DescriptionSettings} settings
+     * @returns {ClassDescription}
+     */
     public setDecoration(settings: DescriptionSettings): ClassDescription {
         if (typeof settings === 'undefined')
             return this;
@@ -60,7 +64,9 @@ export class ClassDescription {
 /**
  * Main decorator storage. This class will store and provide access to all decorators.
  */
-export class Store extends TSMap<any, ClassDescription> {
+export class Store {
+
+    private map:Map<any, ClassDescription> = new Map();
 
     /**
      * Override Map getter. When no class description is found, we want to instantiate and return one. Class decorators
@@ -70,8 +76,10 @@ export class Store extends TSMap<any, ClassDescription> {
      * @returns {ClassDescription}
      */
     public get(key: any): ClassDescription {
-        if (!this.has(key)) this.set(key, new ClassDescription());
-        return super.get(key);
+        if (!this.map.has(key)) {
+            this.map.set(key, new ClassDescription());
+        }
+        return this.map.get(key);
     }
 
 }
