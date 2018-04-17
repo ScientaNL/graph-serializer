@@ -7,9 +7,10 @@ declare module "Scheme" {
 declare module "Store" {
     import { TSMap } from "typescript-map";
     import { Scheme } from "Scheme";
-    export interface PropertyDescriptionSettings {
+    export interface DescriptionSettings {
         scheme?: Scheme;
         serializedName?: string;
+        postDeserialize?: Function;
     }
     /**
      * Property decorator storage class
@@ -18,7 +19,7 @@ declare module "Store" {
         scheme: Scheme;
         name: string;
         serializedName: string;
-        constructor(propertyName: string, settings?: PropertyDescriptionSettings);
+        constructor(propertyName: string, settings?: DescriptionSettings);
         /**
          * Add new property decorator settings here.
          *
@@ -29,16 +30,13 @@ declare module "Store" {
             [key: string]: any;
         }): PropertyDescription;
     }
-    export interface ClassDescriptionSettings {
-        postDeserialize?: Function;
-    }
     /**
      * Class decorator storage
      */
     export class ClassDescription {
         postDeserialize: Function;
         properties: TSMap<string, PropertyDescription>;
-        setDecoration(settings: ClassDescriptionSettings): ClassDescription;
+        setDecoration(settings: DescriptionSettings): ClassDescription;
     }
     /**
      * Main decorator storage. This class will store and provide access to all decorators.
@@ -56,7 +54,7 @@ declare module "Store" {
     export let store: Store;
 }
 declare module "Decorators" {
-    import { ClassDescriptionSettings, PropertyDescriptionSettings } from "Store";
+    import { DescriptionSettings } from "Store";
     /**
      * Serializable decorator. The decorator may receive an object with settings. Example usage:
      *
@@ -77,7 +75,7 @@ declare module "Decorators" {
      * ```
      *
      */
-    export function serializable(settings?: ClassDescriptionSettings | PropertyDescriptionSettings): any;
+    export function serializable(settings?: DescriptionSettings): any;
 }
 declare module "Serializer" {
     /**
@@ -178,7 +176,7 @@ declare module "Types" {
 }
 declare module "graph-serializer" {
     export { Scheme } from "Scheme";
-    export { ClassDescription, ClassDescriptionSettings, PropertyDescription, PropertyDescriptionSettings, Store } from "Store";
+    export { ClassDescription, PropertyDescription, DescriptionSettings, Store } from "Store";
     export { array, custom, date, object, primitive } from "Types";
     export { deserialize, serialize } from "Serializer";
     export { serializable } from "Decorators";

@@ -1,9 +1,10 @@
 import {TSMap} from "typescript-map";
 import {Scheme} from "./Scheme";
 
-export interface PropertyDescriptionSettings {
+export interface DescriptionSettings {
     scheme?: Scheme,
-    serializedName?: string
+    serializedName?: string,
+    postDeserialize?: Function
 }
 
 /**
@@ -15,7 +16,7 @@ export class PropertyDescription {
     public name: string;
     public serializedName: string;
 
-    public constructor(propertyName: string, settings: PropertyDescriptionSettings = {}) {
+    public constructor(propertyName: string, settings: DescriptionSettings = {}) {
         this.name = propertyName;
         this.setDecoration(settings);
     }
@@ -37,10 +38,6 @@ export class PropertyDescription {
     }
 }
 
-export interface ClassDescriptionSettings {
-    postDeserialize?: Function
-}
-
 /**
  * Class decorator storage
  */
@@ -50,7 +47,7 @@ export class ClassDescription {
     };
     public properties: TSMap<string, PropertyDescription> = new TSMap();
 
-    public setDecoration(settings: ClassDescriptionSettings): ClassDescription {
+    public setDecoration(settings: DescriptionSettings): ClassDescription {
         if (typeof settings === 'undefined')
             return this;
         this.postDeserialize = typeof settings.postDeserialize === 'undefined'
