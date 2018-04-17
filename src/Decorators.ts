@@ -1,4 +1,4 @@
-import {PropertyDescription, store} from "./Store";
+import {PropertyDescription, DescriptionSettings, store} from "./Store";
 
 /**
  * Serializable decorator. The decorator may receive an object with settings. Example usage:
@@ -20,7 +20,7 @@ import {PropertyDescription, store} from "./Store";
  * ```
  *
  */
-export function serializable(settings: object = {}): any {
+export function serializable(settings: DescriptionSettings = {}): any {
 
     return function(type:any, propertyName: string){
 
