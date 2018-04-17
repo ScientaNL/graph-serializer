@@ -15,7 +15,7 @@ describe('Primitives', () => {
 
         @serializable()
         class TestBoolean {
-            @serializable({'a':'b'})
+            @serializable()
             isUndefined: boolean;
 
             @serializable()
