@@ -29,7 +29,7 @@
     "decorators"
   ],
   "license": "MIT",
-  "main": "gulpfile.js",
+  "main": "dist/graph-serializer.js",
   "name": "@syslogic/graph-serializer",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
