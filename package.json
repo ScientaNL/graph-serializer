@@ -34,11 +34,10 @@
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
   },
-  "version": "0.0.2",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:SyslogicNL/graph-serializer.git"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
