@@ -1,7 +1,5 @@
-import {array, custom, date, object} from "../src/Types";
-import {serializable} from "../src/Decorators";
-import {serialize, deserialize} from "../src/Serializer";
 import {expect} from 'chai';
+import {array, custom, date, deserialize, object, serializable, serialize} from "../src/graph-serializer";
 
 /** @todo find a strategy to handle any of the standard objects, such as defined in
  * https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Global_Objects
