@@ -1,6 +1,5 @@
-import {serializable} from "../src/Decorators";
-import {serialize, deserialize} from "../src/Serializer";
 import {expect} from 'chai';
+import {deserialize, serializable, serialize} from "../src/graph-serializer";
 
 describe('serializedName', () => {
 
