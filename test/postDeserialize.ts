@@ -1,6 +1,5 @@
-import {serializable} from "../src/Decorators";
-import {deserialize} from "../src/Serializer";
 import {expect} from 'chai';
+import {deserialize, serializable} from "../src/graph-serializer";
 
 /**
  * postDeserialize test file

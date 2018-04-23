@@ -2,10 +2,9 @@
   "compilerOptions": {
     "target": "es5",
     "noImplicitAny": true,
-    "module": "amd",
+    "module": "umd",
     "moduleResolution": "node",
     "experimentalDecorators": true,
-	"outFile": "graph-serializer.js",
 	"declaration": true,
     "lib":["es2015","es2017.typedarrays"]
   }

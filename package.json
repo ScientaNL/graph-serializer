@@ -8,18 +8,16 @@
   "devDependencies": {
     "@types/chai": "^4.1.2",
     "@types/mocha": "^5.0.0",
-    "amd-loader": "0.0.8",
     "chai": "^4.1.2",
     "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.1",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^2.6.4",
     "gulp-typescript": "^4.0.2",
     "gulp-uglify": "^3.0.0",
     "mocha": "^5.0.5",
     "ts-node": "^5.0.1",
     "typescript": "^2.8.1"
   },
+  "typings": "./dist/graph-serializer.d.ts",
   "directories": {
     "test": "test"
   },
@@ -32,13 +30,15 @@
   ],
   "license": "MIT",
   "main": "gulpfile.js",
-  "name": "graph-serializer",
+  "name": "@syslogic/graph-serializer",
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register --require amd-loader ./test/**/*.ts"
+    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
   },
   "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "git@github.com:SyslogicNL/graph-serializer.git"
+  },
+  "dependencies": {
   }
 }

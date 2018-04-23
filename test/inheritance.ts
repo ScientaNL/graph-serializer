@@ -1,6 +1,5 @@
-import {serializable} from "../src/Decorators";
-import {deserialize, serialize} from "../src/Serializer";
 import {expect} from 'chai';
+import {deserialize, serializable, serialize} from "../src/graph-serializer";
 
 /**
  * Testing inheritance. Inheritance adds some complexity to the serializer; we need to serialize super classes as well.
