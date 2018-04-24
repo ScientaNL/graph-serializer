@@ -2,7 +2,11 @@
   "author": {
     "name": "Syslogic"
   },
+  "bugs": {
+    "url": "https://github.com/SyslogicNL/graph-serializer/issues"
+  },
   "bundleDependencies": false,
+  "dependencies": {},
   "deprecated": false,
   "description": "Typescript serializer for converting betweet JSON data and Object graphs",
   "devDependencies": {
@@ -17,10 +21,13 @@
     "ts-node": "^5.0.1",
     "typescript": "^2.8.1"
   },
-  "typings": "./dist/graph-serializer.d.ts",
   "directories": {
     "test": "test"
   },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/SyslogicNL/graph-serializer#readme",
   "keywords": [
     "serializer",
     "typescript",
@@ -31,13 +38,13 @@
   "license": "MIT",
   "main": "dist/graph-serializer.js",
   "name": "@syslogic/graph-serializer",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SyslogicNL/graph-serializer.git"
+  },
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
   },
   "version": "0.1.0",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:SyslogicNL/graph-serializer.git"
-  },
-  "dependencies": {}
+  "typings": "dist/graph-serializer.d.ts"
 }
