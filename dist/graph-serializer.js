@@ -114,6 +114,8 @@
      * @returns {any}
      */
     function deserialize(type, src) {
+        if (src === null)
+            return null;
         var ret = new type();
         var isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
         if (isDerivedClass) {
