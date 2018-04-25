@@ -114,12 +114,15 @@ const store = new Store();
  */
 export function deserialize(type: any, src: any): any {
 
+	if(src === null)
+		return null;
+
 	let ret = new type();
 
 	let isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
 	if(isDerivedClass) {
 		let extendedType = Object.getPrototypeOf(Object.getPrototypeOf(new type())).constructor;
-		Object.assign(ret,deserialize(extendedType,src));
+		Object.assign(ret, deserialize(extendedType,src));
 	}
 
 	store.get(type).properties.forEach((property: PropertyDescription, propertyName: string) => {
