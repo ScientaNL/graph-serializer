@@ -32,10 +32,11 @@ describe('Inheritance', () => {
     });
 
     it('deserialize', () => {
+        // If properties are not defined,
         let output = deserialize(DerivedClass,{});
-        expect(output.superProperty).to.equal(undefined);
-        expect(output.derivedProperty).to.equal(undefined);
-        expect(output.overriddenProperty).to.equal(undefined);
+        expect(output.superProperty).to.equal('super');
+        expect(output.derivedProperty).to.equal('derived');
+        expect(output.overriddenProperty).to.equal('overridden Super');
     });
 
     it('combine', () => {

@@ -123,7 +123,9 @@
             Object.assign(ret, deserialize(extendedType, src));
         }
         store.get(type).properties.forEach(function (property, propertyName) {
-            ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
+            if (typeof src[propertyName] !== 'undefined') {
+                ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
+            }
         });
         store.get(type).postDeserialize(ret);
         return ret;
