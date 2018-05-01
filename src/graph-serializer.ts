@@ -126,7 +126,7 @@ export function deserialize(type: any, src: any): any {
 	}
 
 	store.get(type).properties.forEach((property: PropertyDescription, propertyName: string) => {
-		if(typeof src[propertyName] !== 'undefined') {
+		if(typeof src[property.serializedName] !== 'undefined') {
 			ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
 		}
 	});
