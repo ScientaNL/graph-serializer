@@ -45,6 +45,6 @@
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
   },
-  "version": "0.2.2",
+  "version": "0.2.3",
   "typings": "dist/graph-serializer.d.ts"
 }
