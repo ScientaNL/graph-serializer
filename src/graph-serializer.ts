@@ -146,9 +146,11 @@ export function serialize(src: any): { [key: string]: any } {
 	let ret: { [key: string]: any } = {};
 
 	//parent
-	if(Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
-		let superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
-		Object.assign(ret,serialize(superClass));
+	if(Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
+		if(Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
+			let superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
+			Object.assign(ret,serialize(superClass));
+		}
 	}
 
 	store.get(src.constructor).properties.forEach((property:PropertyDescription,propertyName:string) => {

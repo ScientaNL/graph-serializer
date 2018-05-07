@@ -421,5 +421,9 @@ describe('Union types', () => {
 
 });
 
-
-/* @todo Recursion tests */
+describe('serializeUntypedObjects', () => {
+	it('serialize', () => {
+		let x = {};
+		expect(() => serialize(x)).to.not.throw();
+	});
+});

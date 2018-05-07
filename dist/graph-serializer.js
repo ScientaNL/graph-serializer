@@ -140,9 +140,11 @@
     function serialize(src) {
         var ret = {};
         //parent
-        if (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
-            var superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
-            Object.assign(ret, serialize(superClass));
+        if (Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
+            if (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
+                var superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
+                Object.assign(ret, serialize(superClass));
+            }
         }
         store.get(src.constructor).properties.forEach(function (property, propertyName) {
             ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
