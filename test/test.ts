@@ -291,7 +291,8 @@ describe('Arrays', () => {
 			@serializable({scheme: array()}) names: string[] = [];
 			@serializable({scheme: array()}) directions: string[] = ['up', 'down', 'left', 'right'];
 		}
-		let output = deserialize(Foo,{});
+
+		let output = deserialize(Foo, {});
 		expect(output.names).to.deep.equal([]);
 		expect(output.directions).to.deep.equal(['up', 'down', 'left', 'right']);
 	});
@@ -426,4 +427,27 @@ describe('serializeUntypedObjects', () => {
 		let x = {};
 		expect(() => serialize(x)).to.not.throw();
 	});
+
+	it('Array handle undefined', () => {
+		class Foo {
+			@serializable({scheme: array()})
+			names: string[]
+		}
+
+		expect(deserialize(Foo, {}).names).to.equal(undefined);
+	});
+
+	it('Array handle undefined (2)', () => {
+		class Foo {
+			@serializable({scheme: array()})
+			names: Array<any>;
+		}
+
+		expect(deserialize(Foo, {names: undefined}).names).to.equal(undefined);
+	});
+
+	it('serialize basic object', () => {
+		expect(serialize({name: 'test'})).to.deep.equal({name: 'test'});
+	});
+
 });

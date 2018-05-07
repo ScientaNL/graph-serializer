@@ -145,10 +145,17 @@ export function deserialize(type: any, src: any): any {
 export function serialize(src: any): { [key: string]: any } {
 	let ret: { [key: string]: any } = {};
 
+	if(src === null) return null;
+
+	if(Object.getPrototypeOf(src) === Object.prototype) return src;
+
+	// console.log(src, Object.getPrototypeOf(src));
+
 	//parent
 	if(Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
 		if(Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
 			let superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
+			Object.assign(superClass,src);
 			Object.assign(ret,serialize(superClass));
 		}
 	}
