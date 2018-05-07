@@ -123,7 +123,7 @@
             Object.assign(ret, deserialize(extendedType, src));
         }
         store.get(type).properties.forEach(function (property, propertyName) {
-            if (typeof src[propertyName] !== 'undefined') {
+            if (typeof src[property.serializedName] !== 'undefined') {
                 ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
             }
         });
@@ -139,10 +139,18 @@
      */
     function serialize(src) {
         var ret = {};
+        if (src === null)
+            return null;
+        if (Object.getPrototypeOf(src) === Object.prototype)
+            return src;
+        // console.log(src, Object.getPrototypeOf(src));
         //parent
-        if (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
-            var superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
-            Object.assign(ret, serialize(superClass));
+        if (Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
+            if (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
+                var superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
+                Object.assign(superClass, src);
+                Object.assign(ret, serialize(superClass));
+            }
         }
         store.get(src.constructor).properties.forEach(function (property, propertyName) {
             ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
