@@ -8,6 +8,7 @@ pipeline:
     volumes:
       - /tmp/cache:/cache
 
+#run test for pr with docker node container
   test-pr:
     image: node
     commands:
