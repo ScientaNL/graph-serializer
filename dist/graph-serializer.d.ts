@@ -62,6 +62,12 @@ export declare class Store {
      * @returns {ClassDescription}
      */
     get(key: any): ClassDescription;
+    /**
+     * Setter
+     * @param key
+     * @param {ClassDescription} value
+     */
+    set(key: any, value: ClassDescription): void;
 }
 /**
  * Serializer. Converts a JSON serializable tree to an object instance.
@@ -168,3 +174,11 @@ export declare function custom(serializer: (v: any) => any, deserializer: (v: an
  * @returns {any}
  */
 export declare function serializable(settings?: DescriptionSettings): any;
+/**
+ * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
+ * serializer cannot be used because functions are not allowed in the class decorator.
+ * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+ *
+ * @returns {any}
+ */
+export declare function postDeserialize(): any;

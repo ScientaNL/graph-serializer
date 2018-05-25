@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {deserialize, serializable} from "../src/graph-serializer";
+import {deserialize, postDeserialize, serializable} from "../src/graph-serializer";
 
 /**
  * postDeserialize test file
@@ -7,10 +7,12 @@ import {deserialize, serializable} from "../src/graph-serializer";
 
 describe('postDeserialize', () => {
 
-    @serializable({
-        postDeserialize: (input: TestClass) => input.postDeserializeCalled = true
-    })
     class TestClass {
+        @postDeserialize()
+        public static callAfterDeserialize(input: TestClass) {
+            input.postDeserializeCalled = true;
+        }
+
         @serializable() public label = '';
         public testBoolean = false;
         public postDeserializeCalled = false;
