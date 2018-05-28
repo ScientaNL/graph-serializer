@@ -1,13 +1,5 @@
 pipeline:
 
-  restore-cache:
-    image: drillster/drone-volume-cache
-    restore: true
-    mount:
-      - /drone/docker
-    volumes:
-      - /tmp/cache:/cache
-
 #run test for pr with docker node container
   test-pr:
     image: node
@@ -16,11 +8,3 @@ pipeline:
       - npm run test
     when:
       event: pull_request
-
-  rebuild-cache:
-    image: drillster/drone-volume-cache
-    rebuild: true
-    mount:
-      - /drone/docker
-    volumes:
-      - /tmp/cache:/cache
