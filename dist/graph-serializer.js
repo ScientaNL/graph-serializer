@@ -160,7 +160,7 @@
                 Object.assign(ret, serialize(superClass));
             }
         }
-        store.get(src.constructor).properties.forEach(function (property, propertyName) {
+        store.get(Object.getPrototypeOf(src.constructor)).properties.forEach(function (property, propertyName) {
             ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
         });
         return ret;
