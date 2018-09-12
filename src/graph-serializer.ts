@@ -168,7 +168,7 @@ export function serialize(src: any): { [key: string]: any } {
 		}
 	}
 
-	store.get(src.constructor).properties.forEach((property:PropertyDescription,propertyName:string) => {
+	store.get(Object.getPrototypeOf(src.constructor)).properties.forEach((property:PropertyDescription,propertyName:string) => {
 		ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
 	});
 
