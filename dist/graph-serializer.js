@@ -98,6 +98,14 @@
             }
             return this.map.get(key);
         };
+        /**
+         * Setter
+         * @param key
+         * @param {ClassDescription} value
+         */
+        Store.prototype.set = function (key, value) {
+            this.map.set(key, value);
+        };
         return Store;
     }());
     exports.Store = Store;
@@ -152,7 +160,7 @@
                 Object.assign(ret, serialize(superClass));
             }
         }
-        store.get(src.constructor).properties.forEach(function (property, propertyName) {
+        store.get(Object.getPrototypeOf(src.constructor)).properties.forEach(function (property, propertyName) {
             ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
         });
         return ret;
@@ -292,4 +300,22 @@
         };
     }
     exports.serializable = serializable;
+    /**
+     * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
+     * serializer cannot be used because functions are not allowed in the class decorator.
+     * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+     *
+     * @returns {any}
+     */
+    function postDeserialize() {
+        return function (type, propertyName, propertyDescriptor) {
+            if (arguments.length !== 3) {
+                throw new Error("Invalid decorator");
+            }
+            var classDescriptor = store.get(type);
+            classDescriptor.postDeserialize = propertyDescriptor.value;
+            store.set(type, classDescriptor);
+        };
+    }
+    exports.postDeserialize = postDeserialize;
 });

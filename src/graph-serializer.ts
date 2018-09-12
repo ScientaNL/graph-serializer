@@ -73,6 +73,7 @@ export class ClassDescription {
 			: settings.postDeserialize;
 		return this;
 	}
+
 }
 
 /**
@@ -97,6 +98,14 @@ export class Store {
 		return this.map.get(key);
 	}
 
+	/**
+	 * Setter
+	 * @param key
+	 * @param {ClassDescription} value
+	 */
+	public set(key:any, value: ClassDescription) {
+		this.map.set(key, value);
+	}
 }
 
 /**
@@ -132,7 +141,6 @@ export function deserialize(type: any, src: any): any {
 	});
 
 	store.get(type).postDeserialize(ret);
-
 	return ret;
 }
 
@@ -160,7 +168,7 @@ export function serialize(src: any): { [key: string]: any } {
 		}
 	}
 
-	store.get(src.constructor).properties.forEach((property:PropertyDescription,propertyName:string) => {
+	store.get(Object.getPrototypeOf(src.constructor)).properties.forEach((property:PropertyDescription,propertyName:string) => {
 		ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
 	});
 
@@ -304,4 +312,22 @@ export function serializable(settings: DescriptionSettings = {}): any {
 			throw new Error("Invalid decorator");
 		}
 	};
+}
+
+/**
+ * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
+ * serializer cannot be used because functions are not allowed in the class decorator.
+ * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+ *
+ * @returns {any}
+ */
+export function postDeserialize(): any {
+	return function (type: any, propertyName: string, propertyDescriptor: any) {
+		if(arguments.length !== 3) {
+			throw new Error("Invalid decorator")
+		}
+		let classDescriptor = store.get(type);
+		classDescriptor.postDeserialize = propertyDescriptor.value;
+		store.set(type,classDescriptor);
+	}
 }
