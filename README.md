@@ -27,6 +27,7 @@ class Foo {
 
 let fooObj = deserialize(Foo, {thisWillBeSerialized: 'bar'}); // fooOjb instanceof Foo === true
 let fooGraph = serialize(new Foo()); //  fooGraph = {thisWillBeSerialized: 'bar'}
+
 ```
 
 ### Advanced
