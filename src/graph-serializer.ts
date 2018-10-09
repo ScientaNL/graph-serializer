@@ -13,6 +13,12 @@ export interface DescriptionSettings {
 	scheme?: Scheme,
 	serializedName?: string,
 	postDeserialize?: Function
+	direction?: ("serialize" | "deserialize")[];
+}
+
+export interface ClassConstructor {
+	new(): ClassConstructor;
+	[index: string]: any;
 }
 
 /**
@@ -26,6 +32,7 @@ export class PropertyDescription {
 	public scheme: Scheme;
 	public name: string;
 	public serializedName: string;
+	public direction: ("serialize" | "deserialize")[] = ["serialize", "deserialize"];
 
 	public constructor(propertyName: string, settings: DescriptionSettings = {}) {
 		this.name = propertyName;
@@ -39,12 +46,10 @@ export class PropertyDescription {
 	 * @returns {PropertyDescription}
 	 */
 	public setDecoration(settings: DescriptionSettings): PropertyDescription {
-		this.scheme = typeof settings.scheme === 'undefined'
-			? new Scheme()
-			: settings.scheme;
-		this.serializedName = typeof settings.serializedName === 'undefined'
-			? this.name
-			: settings.serializedName;
+		this.scheme = settings.scheme || new Scheme();
+		this.serializedName = settings.serializedName || this.name;
+		this.direction = settings.direction || this.direction;
+
 		return this;
 	}
 }
@@ -58,7 +63,14 @@ export class PropertyDescription {
 export class ClassDescription {
 
 	public postDeserialize: Function = () => {};
+
+	public deserializationFactory = (data: any) => {
+		return new this.classConstructor();
+	};
+
 	public properties: Map<string, PropertyDescription> = new Map();
+
+	constructor(private classConstructor: ClassConstructor) {}
 
 	/**
 	 * Store decoration
@@ -93,7 +105,7 @@ export class Store {
 	 */
 	public get(key: any): ClassDescription {
 		if (!this.map.has(key)) {
-			this.map.set(key, new ClassDescription());
+			this.map.set(key, new ClassDescription(key));
 		}
 		return this.map.get(key);
 	}
@@ -123,24 +135,26 @@ const store = new Store();
  */
 export function deserialize(type: any, src: any): any {
 
-	if(src === null)
+	if(src === null) {
 		return null;
+	}
 
-	let ret = new type();
+	let classDescription = store.get(type);
+	let ret = classDescription.deserializationFactory(src);
 
 	let isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
 	if(isDerivedClass) {
-		let extendedType = Object.getPrototypeOf(Object.getPrototypeOf(new type())).constructor;
+		let extendedType = Object.getPrototypeOf(Object.getPrototypeOf(ret)).constructor;
 		Object.assign(ret, deserialize(extendedType,src));
 	}
 
-	store.get(type).properties.forEach((property: PropertyDescription, propertyName: string) => {
-		if(typeof src[property.serializedName] !== 'undefined') {
+	classDescription.properties.forEach((property: PropertyDescription, propertyName: string) => {
+		if(typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
 			ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
 		}
 	});
 
-	store.get(type).postDeserialize(ret);
+	classDescription.postDeserialize(ret);
 	return ret;
 }
 
@@ -157,8 +171,6 @@ export function serialize(src: any): { [key: string]: any } {
 
 	if(Object.getPrototypeOf(src) === Object.prototype) return src;
 
-	// console.log(src, Object.getPrototypeOf(src));
-
 	//parent
 	if(Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
 		if(Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
@@ -168,9 +180,13 @@ export function serialize(src: any): { [key: string]: any } {
 		}
 	}
 
-	store.get(Object.getPrototypeOf(src).constructor).properties.forEach((property:PropertyDescription,propertyName:string) => {
-		ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
-	});
+	store.get(Object.getPrototypeOf(src).constructor).properties.forEach(
+		(property: PropertyDescription, propertyName: string) => {
+			if(property.direction.indexOf("serialize") !== -1) {
+				ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
+			}
+		}
+	);
 
 	return ret;
 }
@@ -329,5 +345,24 @@ export function postDeserialize(): any {
 		let classDescriptor = store.get(type);
 		classDescriptor.postDeserialize = propertyDescriptor.value;
 		store.set(type,classDescriptor);
+	}
+}
+
+/**
+ * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
+ * serializer cannot be used because functions are not allowed in the class decorator.
+ * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+ *
+ * @returns {any}
+ */
+export function deserializationFactory(): any {
+	return function (type: any, propertyName: string, propertyDescriptor: any) {
+		if(arguments.length !== 3) {
+			throw new Error("Invalid decorator")
+		}
+
+		let classDescriptor = store.get(type);
+		classDescriptor.deserializationFactory = propertyDescriptor.value;
+		store.set(type, classDescriptor);
 	}
 }

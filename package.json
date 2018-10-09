@@ -13,7 +13,7 @@
     "@types/chai": "^4.1.2",
     "@types/mocha": "^5.0.0",
     "chai": "^4.1.2",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-typescript": "^4.0.2",
     "gulp-uglify": "^3.0.0",
@@ -43,8 +43,9 @@
     "url": "git+ssh://git@github.com/SyslogicNL/graph-serializer.git"
   },
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
+    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts",
+    "gulp": "gulp"
   },
-  "version": "0.2.8",
+  "version": "0.3.0",
   "typings": "dist/graph-serializer.d.ts"
 }
