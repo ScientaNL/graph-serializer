@@ -5,14 +5,7 @@ const
     rename = require('gulp-rename'),
     tsProject = ts.createProject('tsconfig.json');
 
-gulp.task('default',['build','watch']);
-
-gulp.task('watch', function() {
-   gulp.watch("src/**/*.ts",['build']);
-});
-
-
-gulp.task('build', function () {
+gulp.task('build',function(done){
 	"use strict";
 
 	var t = gulp.src("src/**/*.ts")
@@ -25,5 +18,11 @@ gulp.task('build', function () {
 		.pipe(gulp.dest('dist'));
 
 	t.dts.pipe(gulp.dest('dist'));
+	done();
 });
 
+gulp.task('watch', function() {
+	gulp.watch("src/**/*.ts", gulp.series('build'));
+});
+
+gulp.task('default', gulp.series('build','watch'));
