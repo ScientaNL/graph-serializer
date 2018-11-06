@@ -46,6 +46,6 @@
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts",
     "gulp": "gulp"
   },
-  "version": "0.3.0",
+  "version": "0.4.0",
   "typings": "dist/graph-serializer.d.ts"
 }
