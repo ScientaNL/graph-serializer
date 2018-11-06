@@ -29,6 +29,7 @@
     var PropertyDescription = /** @class */ (function () {
         function PropertyDescription(propertyName, settings) {
             if (settings === void 0) { settings = {}; }
+            this.direction = ["serialize", "deserialize"];
             this.name = propertyName;
             this.setDecoration(settings);
         }
@@ -39,12 +40,9 @@
          * @returns {PropertyDescription}
          */
         PropertyDescription.prototype.setDecoration = function (settings) {
-            this.scheme = typeof settings.scheme === 'undefined'
-                ? new Scheme()
-                : settings.scheme;
-            this.serializedName = typeof settings.serializedName === 'undefined'
-                ? this.name
-                : settings.serializedName;
+            this.scheme = settings.scheme || new Scheme();
+            this.serializedName = settings.serializedName || this.name;
+            this.direction = settings.direction || this.direction;
             return this;
         };
         return PropertyDescription;
@@ -57,8 +55,13 @@
      * DescriptionSettings interface defined above, for autocompletion in your favourite IDE.
      */
     var ClassDescription = /** @class */ (function () {
-        function ClassDescription() {
+        function ClassDescription(classConstructor) {
+            var _this = this;
+            this.classConstructor = classConstructor;
             this.postDeserialize = function () { };
+            this.deserializationFactory = function (data) {
+                return new _this.classConstructor();
+            };
             this.properties = new Map();
         }
         /**
@@ -94,7 +97,7 @@
          */
         Store.prototype.get = function (key) {
             if (!this.map.has(key)) {
-                this.map.set(key, new ClassDescription());
+                this.map.set(key, new ClassDescription(key));
             }
             return this.map.get(key);
         };
@@ -122,20 +125,22 @@
      * @returns {any}
      */
     function deserialize(type, src) {
-        if (src === null)
+        if (src === null) {
             return null;
-        var ret = new type();
+        }
+        var classDescription = store.get(type);
+        var ret = classDescription.deserializationFactory(src);
         var isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
         if (isDerivedClass) {
-            var extendedType = Object.getPrototypeOf(Object.getPrototypeOf(new type())).constructor;
+            var extendedType = Object.getPrototypeOf(Object.getPrototypeOf(ret)).constructor;
             Object.assign(ret, deserialize(extendedType, src));
         }
-        store.get(type).properties.forEach(function (property, propertyName) {
-            if (typeof src[property.serializedName] !== 'undefined') {
+        classDescription.properties.forEach(function (property, propertyName) {
+            if (typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
                 ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
             }
         });
-        store.get(type).postDeserialize(ret);
+        classDescription.postDeserialize(ret);
         return ret;
     }
     exports.deserialize = deserialize;
@@ -151,7 +156,6 @@
             return null;
         if (Object.getPrototypeOf(src) === Object.prototype)
             return src;
-        // console.log(src, Object.getPrototypeOf(src));
         //parent
         if (Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
             if (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
@@ -161,7 +165,9 @@
             }
         }
         store.get(Object.getPrototypeOf(src).constructor).properties.forEach(function (property, propertyName) {
-            ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
+            if (property.direction.indexOf("serialize") !== -1) {
+                ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
+            }
         });
         return ret;
     }
@@ -318,4 +324,22 @@
         };
     }
     exports.postDeserialize = postDeserialize;
+    /**
+     * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
+     * serializer cannot be used because functions are not allowed in the class decorator.
+     * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+     *
+     * @returns {any}
+     */
+    function deserializationFactory() {
+        return function (type, propertyName, propertyDescriptor) {
+            if (arguments.length !== 3) {
+                throw new Error("Invalid decorator");
+            }
+            var classDescriptor = store.get(type);
+            classDescriptor.deserializationFactory = propertyDescriptor.value;
+            store.set(type, classDescriptor);
+        };
+    }
+    exports.deserializationFactory = deserializationFactory;
 });

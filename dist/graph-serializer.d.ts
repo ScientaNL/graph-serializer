@@ -12,6 +12,11 @@ export interface DescriptionSettings {
     scheme?: Scheme;
     serializedName?: string;
     postDeserialize?: Function;
+    direction?: ("serialize" | "deserialize")[];
+}
+export interface ClassConstructor {
+    new (): ClassConstructor;
+    [index: string]: any;
 }
 /**
  * Property decorator storage.
@@ -23,6 +28,7 @@ export declare class PropertyDescription {
     scheme: Scheme;
     name: string;
     serializedName: string;
+    direction: ("serialize" | "deserialize")[];
     constructor(propertyName: string, settings?: DescriptionSettings);
     /**
      * Add new property decorator settings here.
@@ -39,8 +45,11 @@ export declare class PropertyDescription {
  * DescriptionSettings interface defined above, for autocompletion in your favourite IDE.
  */
 export declare class ClassDescription {
+    private classConstructor;
     postDeserialize: Function;
+    deserializationFactory: (data: any) => ClassConstructor;
     properties: Map<string, PropertyDescription>;
+    constructor(classConstructor: ClassConstructor);
     /**
      * Store decoration
      * @param {DescriptionSettings} settings
@@ -182,3 +191,11 @@ export declare function serializable(settings?: DescriptionSettings): any;
  * @returns {any}
  */
 export declare function postDeserialize(): any;
+/**
+ * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
+ * serializer cannot be used because functions are not allowed in the class decorator.
+ * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+ *
+ * @returns {any}
+ */
+export declare function deserializationFactory(): any;
