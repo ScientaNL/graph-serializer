@@ -43,7 +43,8 @@
     "url": "git+ssh://git@github.com/SyslogicNL/graph-serializer.git"
   },
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts"
+    "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts",
+    "gulp": "gulp"
   },
   "version": "0.3.0",
   "typings": "dist/graph-serializer.d.ts"
