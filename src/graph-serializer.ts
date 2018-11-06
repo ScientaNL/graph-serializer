@@ -62,7 +62,7 @@ export class PropertyDescription {
  */
 export class ClassDescription {
 
-	public postDeserialize: Function = () => {};
+	public postDeserialize: Function;
 
 	public deserializationFactory = (data: any) => {
 		return new this.classConstructor();
@@ -78,14 +78,14 @@ export class ClassDescription {
 	 * @returns {ClassDescription}
 	 */
 	public setDecoration(settings: DescriptionSettings): ClassDescription {
-		if (typeof settings === 'undefined')
+		if (typeof settings === 'undefined') {
 			return this;
-		this.postDeserialize = typeof settings.postDeserialize === 'undefined'
-			? () => { }
-			: settings.postDeserialize;
+		}
+
+		this.postDeserialize = settings.postDeserialize || undefined;
+
 		return this;
 	}
-
 }
 
 /**
@@ -107,6 +107,7 @@ export class Store {
 		if (!this.map.has(key)) {
 			this.map.set(key, new ClassDescription(key));
 		}
+
 		return this.map.get(key);
 	}
 
@@ -139,14 +140,25 @@ export function deserialize(type: any, src: any): any {
 		return null;
 	}
 
-	let classDescription = store.get(type);
-	let ret = classDescription.deserializationFactory(src);
+	//Construct a runtime ClassDescription containing the current inheritance stack
+	let cursor = type;
+	let classDescription = new ClassDescription(type);
+	do{
+		let cursorClassDescription = store.get(cursor);
+		if(cursor === type) {
+			classDescription.deserializationFactory = cursorClassDescription.deserializationFactory;
+		}
 
-	let isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
-	if(isDerivedClass) {
-		let extendedType = Object.getPrototypeOf(Object.getPrototypeOf(ret)).constructor;
-		Object.assign(ret, deserialize(extendedType,src));
-	}
+		classDescription.postDeserialize = classDescription.postDeserialize || cursorClassDescription.postDeserialize;
+
+		cursorClassDescription.properties.forEach((property: PropertyDescription, propertyName: string) => {
+			if(!classDescription.properties.has(propertyName)) {
+				classDescription.properties.set(propertyName, property);
+			}
+		});
+	} while((cursor = Object.getPrototypeOf(cursor)) instanceof Function);
+
+	let ret = classDescription.deserializationFactory(src);
 
 	classDescription.properties.forEach((property: PropertyDescription, propertyName: string) => {
 		if(typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
@@ -154,7 +166,10 @@ export function deserialize(type: any, src: any): any {
 		}
 	});
 
-	classDescription.postDeserialize(ret);
+	if(typeof classDescription.postDeserialize === "function") {
+		classDescription.postDeserialize(ret);
+	}
+
 	return ret;
 }
 
@@ -314,17 +329,11 @@ export function serializable(settings: DescriptionSettings = {}): any {
 
 	return function(type:any, propertyName: string){
 
-		// Class decorator
-		if(arguments.length === 1) {
+		if(arguments.length === 1) { // Class decorator
 			store.get(type).setDecoration(settings);
-		}
-
-		// Property decorator
-		else if(arguments.length === 3) {
+		} else if(arguments.length === 3) { // Property decorator
 			store.get(type.constructor).properties.set(propertyName, new PropertyDescription(propertyName, settings));
-		}
-
-		else {
+		} else {
 			throw new Error("Invalid decorator");
 		}
 	};
@@ -339,25 +348,24 @@ export function serializable(settings: DescriptionSettings = {}): any {
  */
 export function postDeserialize(): any {
 	return function (type: any, propertyName: string, propertyDescriptor: any) {
-		if(arguments.length !== 3) {
+		if (arguments.length !== 3) {
 			throw new Error("Invalid decorator")
 		}
 		let classDescriptor = store.get(type);
 		classDescriptor.postDeserialize = propertyDescriptor.value;
-		store.set(type,classDescriptor);
+		store.set(type, classDescriptor);
 	}
 }
 
 /**
- * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
- * serializer cannot be used because functions are not allowed in the class decorator.
- * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+ * DeserializationFactory decorator. Mark a static method as a factory to create an instance of the type during
+ * deserialization.
  *
  * @returns {any}
  */
 export function deserializationFactory(): any {
 	return function (type: any, propertyName: string, propertyDescriptor: any) {
-		if(arguments.length !== 3) {
+		if (arguments.length !== 3) {
 			throw new Error("Invalid decorator")
 		}
 

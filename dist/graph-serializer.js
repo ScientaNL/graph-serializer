@@ -58,7 +58,6 @@
         function ClassDescription(classConstructor) {
             var _this = this;
             this.classConstructor = classConstructor;
-            this.postDeserialize = function () { };
             this.deserializationFactory = function (data) {
                 return new _this.classConstructor();
             };
@@ -70,11 +69,10 @@
          * @returns {ClassDescription}
          */
         ClassDescription.prototype.setDecoration = function (settings) {
-            if (typeof settings === 'undefined')
+            if (typeof settings === 'undefined') {
                 return this;
-            this.postDeserialize = typeof settings.postDeserialize === 'undefined'
-                ? function () { }
-                : settings.postDeserialize;
+            }
+            this.postDeserialize = settings.postDeserialize || undefined;
             return this;
         };
         return ClassDescription;
@@ -128,19 +126,30 @@
         if (src === null) {
             return null;
         }
-        var classDescription = store.get(type);
+        //Construct a runtime ClassDescription containing the current inheritance stack
+        var cursor = type;
+        var classDescription = new ClassDescription(type);
+        do {
+            var cursorClassDescription = store.get(cursor);
+            if (cursor === type) {
+                classDescription.deserializationFactory = cursorClassDescription.deserializationFactory;
+            }
+            classDescription.postDeserialize = classDescription.postDeserialize || cursorClassDescription.postDeserialize;
+            cursorClassDescription.properties.forEach(function (property, propertyName) {
+                if (!classDescription.properties.has(propertyName)) {
+                    classDescription.properties.set(propertyName, property);
+                }
+            });
+        } while ((cursor = Object.getPrototypeOf(cursor)) instanceof Function);
         var ret = classDescription.deserializationFactory(src);
-        var isDerivedClass = Object.getPrototypeOf(type) instanceof Function;
-        if (isDerivedClass) {
-            var extendedType = Object.getPrototypeOf(Object.getPrototypeOf(ret)).constructor;
-            Object.assign(ret, deserialize(extendedType, src));
-        }
         classDescription.properties.forEach(function (property, propertyName) {
             if (typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
                 ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
             }
         });
-        classDescription.postDeserialize(ret);
+        if (typeof classDescription.postDeserialize === "function") {
+            classDescription.postDeserialize(ret);
+        }
         return ret;
     }
     exports.deserialize = deserialize;
@@ -292,12 +301,10 @@
     function serializable(settings) {
         if (settings === void 0) { settings = {}; }
         return function (type, propertyName) {
-            // Class decorator
-            if (arguments.length === 1) {
+            if (arguments.length === 1) { // Class decorator
                 store.get(type).setDecoration(settings);
             }
-            // Property decorator
-            else if (arguments.length === 3) {
+            else if (arguments.length === 3) { // Property decorator
                 store.get(type.constructor).properties.set(propertyName, new PropertyDescription(propertyName, settings));
             }
             else {
@@ -325,9 +332,8 @@
     }
     exports.postDeserialize = postDeserialize;
     /**
-     * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
-     * serializer cannot be used because functions are not allowed in the class decorator.
-     * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+     * DeserializationFactory decorator. Mark a static method as a factory to create an instance of the type during
+     * deserialization.
      *
      * @returns {any}
      */

@@ -32,6 +32,7 @@
     "serializer",
     "typescript",
     "object",
+    "object",
     "graph",
     "decorators"
   ],

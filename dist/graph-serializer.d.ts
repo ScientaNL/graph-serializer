@@ -192,9 +192,8 @@ export declare function serializable(settings?: DescriptionSettings): any;
  */
 export declare function postDeserialize(): any;
 /**
- * postDeserialize decorator. If you are using an AOT build of your project, the class annotation for the
- * serializer cannot be used because functions are not allowed in the class decorator.
- * Therefore, you should create a *static member function* for postDeserialization and annotate it with this function.
+ * DeserializationFactory decorator. Mark a static method as a factory to create an instance of the type during
+ * deserialization.
  *
  * @returns {any}
  */
