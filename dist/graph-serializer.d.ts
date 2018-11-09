@@ -15,7 +15,7 @@ export interface DescriptionSettings {
     direction?: ("serialize" | "deserialize")[];
 }
 export interface ClassConstructor {
-    new (): ClassConstructor;
+    new (): any;
     [index: string]: any;
 }
 /**
@@ -47,7 +47,7 @@ export declare class PropertyDescription {
 export declare class ClassDescription {
     private classConstructor;
     postDeserialize: Function;
-    deserializationFactory: (data: any) => ClassConstructor;
+    deserializationFactory: (data: any) => any;
     properties: Map<string, PropertyDescription>;
     constructor(classConstructor: ClassConstructor);
     /**

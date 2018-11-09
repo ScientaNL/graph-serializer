@@ -127,24 +127,11 @@
             return null;
         }
         //Construct a runtime ClassDescription containing the current inheritance stack
-        var cursor = type;
-        var classDescription = new ClassDescription(type);
-        do {
-            var cursorClassDescription = store.get(cursor);
-            if (cursor === type) {
-                classDescription.deserializationFactory = cursorClassDescription.deserializationFactory;
-            }
-            classDescription.postDeserialize = classDescription.postDeserialize || cursorClassDescription.postDeserialize;
-            cursorClassDescription.properties.forEach(function (property, propertyName) {
-                if (!classDescription.properties.has(propertyName)) {
-                    classDescription.properties.set(propertyName, property);
-                }
-            });
-        } while ((cursor = Object.getPrototypeOf(cursor)) instanceof Function);
+        var classDescription = createClassDescription(type);
         var ret = classDescription.deserializationFactory(src);
-        classDescription.properties.forEach(function (property, propertyName) {
+        classDescription.properties.forEach(function (property) {
             if (typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
-                ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
+                ret[property.name] = property.scheme.deserializer(src[property.serializedName]);
             }
         });
         if (typeof classDescription.postDeserialize === "function") {
@@ -160,27 +147,44 @@
      * @returns {{[p: string]: any}}
      */
     function serialize(src) {
-        var ret = {};
-        if (src === null)
+        if (src === null) {
             return null;
-        if (Object.getPrototypeOf(src) === Object.prototype)
-            return src;
-        //parent
-        if (Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
-            if (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
-                var superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
-                Object.assign(superClass, src);
-                Object.assign(ret, serialize(superClass));
-            }
         }
-        store.get(Object.getPrototypeOf(src).constructor).properties.forEach(function (property, propertyName) {
+        else if (Object.getPrototypeOf(src) === Object.prototype) {
+            return src;
+        }
+        var ret = {};
+        var classDescription = createClassDescription(Object.getPrototypeOf(src).constructor);
+        classDescription.properties.forEach(function (property) {
             if (property.direction.indexOf("serialize") !== -1) {
-                ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
+                ret[property.serializedName] = property.scheme.serializer(src[property.name]);
             }
         });
         return ret;
     }
     exports.serialize = serialize;
+    /**
+     * Construct a runtime ClassDescription containing the current inheritance stack
+     *
+     * @param type
+     */
+    function createClassDescription(type) {
+        var cursor = type;
+        var classDescription = new ClassDescription(type);
+        do {
+            var cursorClassDescription = store.get(cursor);
+            if (cursor === type) { //Only first item in the stack (ie. the implementation) can set deserializationFactory.
+                classDescription.deserializationFactory = cursorClassDescription.deserializationFactory;
+            }
+            classDescription.postDeserialize = classDescription.postDeserialize || cursorClassDescription.postDeserialize;
+            cursorClassDescription.properties.forEach(function (property) {
+                if (!classDescription.properties.has(property.serializedName)) {
+                    classDescription.properties.set(property.serializedName, property);
+                }
+            });
+        } while ((cursor = Object.getPrototypeOf(cursor)) instanceof Function);
+        return classDescription;
+    }
     /**
      * Primitive scheme type.
      * The default scheme. This will return properties as-is on deserialize. This is exported as const because
