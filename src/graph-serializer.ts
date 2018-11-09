@@ -17,7 +17,8 @@ export interface DescriptionSettings {
 }
 
 export interface ClassConstructor {
-	new(): ClassConstructor;
+	new(): any;
+
 	[index: string]: any;
 }
 
@@ -70,7 +71,8 @@ export class ClassDescription {
 
 	public properties: Map<string, PropertyDescription> = new Map();
 
-	constructor(private classConstructor: ClassConstructor) {}
+	constructor(private classConstructor: ClassConstructor) {
+	}
 
 	/**
 	 * Store decoration
@@ -94,7 +96,7 @@ export class ClassDescription {
  */
 export class Store {
 
-	private map:Map<any, ClassDescription> = new Map();
+	private map: Map<any, ClassDescription> = new Map();
 
 	/**
 	 * Override Map getter. When no class description is found, we want to instantiate and return one. Class decorators
@@ -116,7 +118,7 @@ export class Store {
 	 * @param key
 	 * @param {ClassDescription} value
 	 */
-	public set(key:any, value: ClassDescription) {
+	public set(key: any, value: ClassDescription) {
 		this.map.set(key, value);
 	}
 }
@@ -135,38 +137,21 @@ const store = new Store();
  * @returns {any}
  */
 export function deserialize(type: any, src: any): any {
-
-	if(src === null) {
+	if (src === null) {
 		return null;
 	}
 
 	//Construct a runtime ClassDescription containing the current inheritance stack
-	let cursor = type;
-	let classDescription = new ClassDescription(type);
-	do{
-		let cursorClassDescription = store.get(cursor);
-		if(cursor === type) {
-			classDescription.deserializationFactory = cursorClassDescription.deserializationFactory;
-		}
-
-		classDescription.postDeserialize = classDescription.postDeserialize || cursorClassDescription.postDeserialize;
-
-		cursorClassDescription.properties.forEach((property: PropertyDescription, propertyName: string) => {
-			if(!classDescription.properties.has(propertyName)) {
-				classDescription.properties.set(propertyName, property);
-			}
-		});
-	} while((cursor = Object.getPrototypeOf(cursor)) instanceof Function);
-
+	let classDescription = createClassDescription(type);
 	let ret = classDescription.deserializationFactory(src);
 
-	classDescription.properties.forEach((property: PropertyDescription, propertyName: string) => {
-		if(typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
-			ret[propertyName] = property.scheme.deserializer(src[property.serializedName]);
+	classDescription.properties.forEach((property: PropertyDescription) => {
+		if (typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
+			ret[property.name] = property.scheme.deserializer(src[property.serializedName]);
 		}
 	});
 
-	if(typeof classDescription.postDeserialize === "function") {
+	if (typeof classDescription.postDeserialize === "function") {
 		classDescription.postDeserialize(ret);
 	}
 
@@ -180,25 +165,19 @@ export function deserialize(type: any, src: any): any {
  * @returns {{[p: string]: any}}
  */
 export function serialize(src: any): { [key: string]: any } {
-	let ret: { [key: string]: any } = {};
-
-	if(src === null) return null;
-
-	if(Object.getPrototypeOf(src) === Object.prototype) return src;
-
-	//parent
-	if(Object.getPrototypeOf(Object.getPrototypeOf(src)) !== null) {
-		if(Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor !== Object) {
-			let superClass = new (Object.getPrototypeOf(Object.getPrototypeOf(src)).constructor)();
-			Object.assign(superClass,src);
-			Object.assign(ret,serialize(superClass));
-		}
+	if (src === null) {
+		return null;
+	} else if (Object.getPrototypeOf(src) === Object.prototype) {
+		return src;
 	}
 
-	store.get(Object.getPrototypeOf(src).constructor).properties.forEach(
-		(property: PropertyDescription, propertyName: string) => {
-			if(property.direction.indexOf("serialize") !== -1) {
-				ret[property.serializedName] = property.scheme.serializer(src[propertyName]);
+	let ret: { [key: string]: any } = {};
+	let classDescription = createClassDescription(Object.getPrototypeOf(src).constructor);
+
+	classDescription.properties.forEach(
+		(property: PropertyDescription) => {
+			if (property.direction.indexOf("serialize") !== -1) {
+				ret[property.serializedName] = property.scheme.serializer(src[property.name]);
 			}
 		}
 	);
@@ -206,6 +185,32 @@ export function serialize(src: any): { [key: string]: any } {
 	return ret;
 }
 
+/**
+ * Construct a runtime ClassDescription containing the current inheritance stack
+ *
+ * @param type
+ */
+function createClassDescription(type: ClassConstructor): ClassDescription {
+
+	let cursor = type;
+	let classDescription = new ClassDescription(type);
+	do {
+		let cursorClassDescription = store.get(cursor);
+		if (cursor === type) { //Only first item in the stack (ie. the implementation) can set deserializationFactory.
+			classDescription.deserializationFactory = cursorClassDescription.deserializationFactory;
+		}
+
+		classDescription.postDeserialize = classDescription.postDeserialize || cursorClassDescription.postDeserialize;
+
+		cursorClassDescription.properties.forEach((property: PropertyDescription) => {
+			if (!classDescription.properties.has(property.serializedName)) {
+				classDescription.properties.set(property.serializedName, property);
+			}
+		});
+	} while ((cursor = Object.getPrototypeOf(cursor)) instanceof Function);
+
+	return classDescription;
+}
 
 /**
  * Primitive scheme type.
@@ -229,10 +234,10 @@ export const primitive = new Scheme();
  *
  * @type {Scheme}
  */
-export const date = (function(){
+export const date = (function () {
 	let scheme = new Scheme();
-	scheme.serializer = (v:Date) => (v instanceof Date) ? v.toJSON() : v;
-	scheme.deserializer = (v:string) => (typeof v === 'string') ? new Date(v) : v;
+	scheme.serializer = (v: Date) => (v instanceof Date) ? v.toJSON() : v;
+	scheme.deserializer = (v: string) => (typeof v === 'string') ? new Date(v) : v;
 	return scheme;
 })();
 
@@ -257,7 +262,7 @@ export function array(childScheme: Scheme = primitive) {
 		return v.map((w: any) => childScheme.serializer(w))
 	};
 	scheme.deserializer = (v: any) => {
-		if(v === undefined) return v;
+		if (v === undefined) return v;
 		return v.map((w: any) => childScheme.deserializer(w))
 	};
 	return scheme;
@@ -281,8 +286,8 @@ export function array(childScheme: Scheme = primitive) {
  */
 export function object(type: any): Scheme {
 	let scheme = new Scheme();
-	scheme.serializer = (v:any) => serialize(v);
-	scheme.deserializer = (v:any) => deserialize(type,v);
+	scheme.serializer = (v: any) => serialize(v);
+	scheme.deserializer = (v: any) => deserialize(type, v);
 	return scheme;
 }
 
@@ -327,11 +332,11 @@ export function custom(serializer: (v: any) => any, deserializer: (v: any) => an
  */
 export function serializable(settings: DescriptionSettings = {}): any {
 
-	return function(type:any, propertyName: string){
+	return function (type: any, propertyName: string) {
 
-		if(arguments.length === 1) { // Class decorator
+		if (arguments.length === 1) { // Class decorator
 			store.get(type).setDecoration(settings);
-		} else if(arguments.length === 3) { // Property decorator
+		} else if (arguments.length === 3) { // Property decorator
 			store.get(type.constructor).properties.set(propertyName, new PropertyDescription(propertyName, settings));
 		} else {
 			throw new Error("Invalid decorator");
