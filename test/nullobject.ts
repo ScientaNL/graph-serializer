@@ -6,8 +6,7 @@ import {array, custom, date, deserialize, object, serializable, serialize} from 
  * and
  * https://developer.mozilla.org/en-US/docs/Web/API
  */
-
-describe('Extra tests', () => {
+describe('Null tests', () => {
 
     describe('null value in nested class', () => {
 
@@ -72,7 +71,5 @@ describe('Extra tests', () => {
             expect(output.foo).to.equal(null);
         });
     });
-
-
 });
 

@@ -242,6 +242,51 @@
     }
     exports.array = array;
     /**
+     * Array scheme type
+     * The array function will apply a scheme to all of its children.
+     *
+     * Example usage:
+     * ```
+     * class TestClass {
+     *  @serializable(array())
+     *  public children: string[];
+     * }
+     * ```
+     *
+     * @param {Scheme} childScheme
+     * @returns {Scheme}
+     */
+    function objectMap(childScheme) {
+        if (childScheme === void 0) { childScheme = exports.primitive; }
+        var scheme = new Scheme();
+        scheme.serializer = function (v) {
+            if (v === undefined || typeof v !== "object") {
+                return v;
+            }
+            var ret = {};
+            for (var k in v) {
+                if (v.hasOwnProperty(k) === true) {
+                    ret[k] = childScheme.serializer(v[k]);
+                }
+            }
+            return ret;
+        };
+        scheme.deserializer = function (v) {
+            if (v === undefined || typeof v !== "object") {
+                return v;
+            }
+            var ret = {};
+            for (var k in v) {
+                if (v.hasOwnProperty(k) === true) {
+                    ret[k] = childScheme.deserializer(v[k]);
+                }
+            }
+            return ret;
+        };
+        return scheme;
+    }
+    exports.objectMap = objectMap;
+    /**
      * Object scheme type
      * The object function will serialize a nested object
      *

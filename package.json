@@ -11,15 +11,15 @@
   "description": "Typescript serializer for converting betweet JSON data and Object graphs",
   "devDependencies": {
     "@types/chai": "^4.1.2",
-    "@types/mocha": "^5.0.0",
-    "chai": "^4.1.2",
-    "gulp": "^4.0.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-typescript": "^4.0.2",
-    "gulp-uglify": "^3.0.0",
-    "mocha": "^5.0.5",
-    "ts-node": "^5.0.1",
-    "typescript": "^2.8.1"
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "gulp": "^4.0.2",
+    "gulp-rename": "^1.4.0",
+    "gulp-typescript": "^5.0.1",
+    "gulp-uglify": "^3.0.2",
+    "mocha": "^6.2.2",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
   },
   "directories": {
     "test": "test"
@@ -45,7 +45,8 @@
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts",
-    "gulp": "gulp"
+    "gulp": "gulp",
+    "build": "gulp build"
   },
   "version": "0.4.6",
   "typings": "dist/graph-serializer.d.ts"

@@ -134,6 +134,22 @@ export declare const date: Scheme;
  */
 export declare function array(childScheme?: Scheme): Scheme;
 /**
+ * Array scheme type
+ * The array function will apply a scheme to all of its children.
+ *
+ * Example usage:
+ * ```
+ * class TestClass {
+ *  @serializable(array())
+ *  public children: string[];
+ * }
+ * ```
+ *
+ * @param {Scheme} childScheme
+ * @returns {Scheme}
+ */
+export declare function objectMap(childScheme?: Scheme): Scheme;
+/**
  * Object scheme type
  * The object function will serialize a nested object
  *
