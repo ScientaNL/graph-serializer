@@ -10,9 +10,9 @@ export class Scheme {
  * This interface should define all decorator parameters you can supply to the @serializable decorator.
  */
 export interface DescriptionSettings {
-	scheme?: Scheme,
-	serializedName?: string,
-	postDeserialize?: Function
+	scheme?: Scheme;
+	serializedName?: string;
+	postDeserialize?: Function;
 	direction?: ("serialize" | "deserialize")[];
 }
 
@@ -29,7 +29,6 @@ export interface ClassConstructor {
  * DescriptionSettings interface defined above, for autocompletion in your favourite IDE.
  */
 export class PropertyDescription {
-
 	public scheme: Scheme;
 	public name: string;
 	public serializedName: string;
@@ -265,6 +264,58 @@ export function array(childScheme: Scheme = primitive) {
 		if (v === undefined) return v;
 		return v.map((w: any) => childScheme.deserializer(w))
 	};
+	return scheme;
+}
+
+/**
+ * Array scheme type
+ * The array function will apply a scheme to all of its children.
+ *
+ * Example usage:
+ * ```
+ * class TestClass {
+ *  @serializable(array())
+ *  public children: string[];
+ * }
+ * ```
+ *
+ * @param {Scheme} childScheme
+ * @returns {Scheme}
+ */
+export function objectMap(childScheme: Scheme = primitive) {
+	let scheme = new Scheme();
+
+	scheme.serializer = (v: { [key: string]: any }) => {
+		if (v === undefined || typeof v !== "object") {
+			return v;
+		}
+
+		const ret: { [key: string]: any } = {};
+		for (const k in v) {
+			if (v.hasOwnProperty(k) === true) {
+				ret[k] = childScheme.serializer(v[k]);
+			}
+		}
+
+		return ret;
+	};
+
+	scheme.deserializer = (v: { [key: string]: any }) => {
+		if (v === undefined || typeof v !== "object") {
+			return v;
+		}
+
+		const ret: { [key: string]: any } = {};
+		for (const k in v) {
+			if (v.hasOwnProperty(k) === true) {
+				ret[k] = childScheme.deserializer(v[k]);
+			}
+		}
+
+		return ret;
+
+	};
+
 	return scheme;
 }
 

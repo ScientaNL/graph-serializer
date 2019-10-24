@@ -4,7 +4,7 @@ pipeline:
   test-pr:
     image: node
     commands:
-      - npm install
-      - npm run test
+      - yarn
+      - yarn test
     when:
       event: pull_request

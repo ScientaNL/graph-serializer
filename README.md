@@ -1,6 +1,6 @@
 # graph-serializer
 
-Graph serializer is a lightweight ibrary for converting JSON data structures to typed objects usable in typescript. Benefits include better type checking in your IDE, better type safety, and standardized date conversion. Primary use case is for easy integration of RESTful services and typescript.
+Graph serializer is a lightweight library for converting JSON data structures to typed objects usable in typescript. Benefits include better type checking in your IDE, better type safety, and standardized date conversion. Primary use case is for easy integration of RESTful services and typescript.
 
 ## Installation
 
@@ -18,7 +18,7 @@ The `serialize` and `deserialize` functions can then be used with the entity
 ### Basic usage
 
 ```typescript
-import {serializable,deserialize,serialize} from "@syslogic/graph-serializer"
+import {serializable, deserialize, serialize} from "@syslogic/graph-serializer"
 
 class Foo {
     @serializable()
@@ -36,7 +36,8 @@ There are a few serializer parameters to seraialize all sorts of serializers. Ch
 
  - Proper `Date` deserialization
  - Nested serialization
- - Serialize and deserialize including subclasses (class hierarcy)
+ - Serialize and deserialize including subclasses (class hierarchy)
  - Arrays, multilevel arrays
+ - Object maps / Hash maps
  - Union types
  - Polymorphic arrays
