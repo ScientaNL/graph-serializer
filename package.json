@@ -48,6 +48,6 @@
     "gulp": "gulp",
     "build": "gulp build"
   },
-  "version": "0.4.6",
+  "version": "0.5.0",
   "typings": "dist/graph-serializer.d.ts"
 }
