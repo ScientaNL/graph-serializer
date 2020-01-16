@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "noImplicitAny": true,
-    "module": "umd",
+    "module": "commonjs",
     "moduleResolution": "node",
     "experimentalDecorators": true,
 	"declaration": true,
