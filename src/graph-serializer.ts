@@ -6,11 +6,17 @@ export class Scheme {
 	public deserializer: (v: any) => any = (v: any) => v;
 }
 
+export type SchemeFn = (() => Scheme)
+
+function resolveScheme(scheme: Scheme | SchemeFn): Scheme {
+	return scheme instanceof Scheme ? scheme : scheme();
+}
+
 /**
  * This interface should define all decorator parameters you can supply to the @serializable decorator.
  */
 export interface DescriptionSettings {
-	scheme?: Scheme;
+	scheme?: Scheme | SchemeFn;
 	serializedName?: string;
 	postDeserialize?: Function;
 	direction?: ("serialize" | "deserialize")[];
@@ -29,7 +35,7 @@ export interface ClassConstructor {
  * DescriptionSettings interface defined above, for autocompletion in your favourite IDE.
  */
 export class PropertyDescription {
-	public scheme: Scheme;
+	public scheme: Scheme | SchemeFn;
 	public name: string;
 	public serializedName: string;
 	public direction: ("serialize" | "deserialize")[] = ["serialize", "deserialize"];
@@ -146,7 +152,7 @@ export function deserialize(type: any, src: any): any {
 
 	classDescription.properties.forEach((property: PropertyDescription) => {
 		if (typeof src[property.serializedName] !== 'undefined' && property.direction.indexOf("deserialize") !== -1) {
-			ret[property.name] = property.scheme.deserializer(src[property.serializedName]);
+			ret[property.name] = resolveScheme(property.scheme).deserializer(src[property.serializedName]);
 		}
 	});
 
@@ -176,7 +182,7 @@ export function serialize(src: any): { [key: string]: any } {
 	classDescription.properties.forEach(
 		(property: PropertyDescription) => {
 			if (property.direction.indexOf("serialize") !== -1) {
-				ret[property.serializedName] = property.scheme.serializer(src[property.name]);
+				ret[property.serializedName] = resolveScheme(property.scheme).serializer(src[property.name]);
 			}
 		}
 	);
@@ -255,14 +261,14 @@ export const date = (function () {
  * @param {Scheme} childScheme
  * @returns {Scheme}
  */
-export function array(childScheme: Scheme = primitive) {
+export function array(childScheme: Scheme | SchemeFn = primitive) {
 	let scheme = new Scheme();
 	scheme.serializer = (v: any) => {
-		return v.map((w: any) => childScheme.serializer(w))
+		return v.map((w: any) => resolveScheme(childScheme).serializer(w))
 	};
 	scheme.deserializer = (v: any) => {
 		if (v === undefined) return v;
-		return v.map((w: any) => childScheme.deserializer(w))
+		return v.map((w: any) => resolveScheme(childScheme).deserializer(w))
 	};
 	return scheme;
 }
@@ -282,7 +288,7 @@ export function array(childScheme: Scheme = primitive) {
  * @param {Scheme} childScheme
  * @returns {Scheme}
  */
-export function objectMap(childScheme: Scheme = primitive) {
+export function objectMap(childScheme: Scheme | SchemeFn = primitive) {
 	let scheme = new Scheme();
 
 	scheme.serializer = (v: { [key: string]: any }) => {
@@ -293,7 +299,7 @@ export function objectMap(childScheme: Scheme = primitive) {
 		const ret: { [key: string]: any } = {};
 		for (const k in v) {
 			if (v.hasOwnProperty(k) === true) {
-				ret[k] = childScheme.serializer(v[k]);
+				ret[k] = resolveScheme(childScheme).serializer(v[k]);
 			}
 		}
 
@@ -308,7 +314,7 @@ export function objectMap(childScheme: Scheme = primitive) {
 		const ret: { [key: string]: any } = {};
 		for (const k in v) {
 			if (v.hasOwnProperty(k) === true) {
-				ret[k] = childScheme.deserializer(v[k]);
+				ret[k] = resolveScheme(childScheme).deserializer(v[k]);
 			}
 		}
 

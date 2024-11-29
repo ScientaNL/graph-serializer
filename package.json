@@ -38,6 +38,10 @@
   ],
   "license": "MIT",
   "main": "dist/graph-serializer.js",
+  "exports": {
+    "require": "./dist/graph-serializer.js",
+    "import": "./dist/esm/graph-serializer.js"
+  },
   "name": "@syslogic/graph-serializer",
   "repository": {
     "type": "git",
@@ -46,8 +50,11 @@
   "scripts": {
     "test": "node ./node_modules/mocha/bin/_mocha --require ts-node/register ./test/**/*.ts",
     "gulp": "gulp",
-    "build": "gulp build"
+    "build:cjs": "NODE_OPTIONS=--no-experimental-fetch gulp build:cjs",
+    "build:esm": "NODE_OPTIONS=--no-experimental-fetch gulp build:esm",
+    "build": "npm run build:cjs && npm run build:esm"
   },
   "version": "0.5.1",
-  "typings": "dist/graph-serializer.d.ts"
+  "typings": "dist/graph-serializer.d.ts",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
