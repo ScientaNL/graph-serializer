@@ -1,11 +1,14 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "noImplicitAny": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-	"declaration": true,
-    "lib":["es2015","es2017.typedarrays"]
-  }
+	"compilerOptions": {
+		"target": "es5",
+		"noImplicitAny": true,
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"experimentalDecorators": true,
+		"declaration": true,
+		"lib": [
+			"es2015",
+			"es2017.typedarrays"
+		]
+	}
 }
